@@ -7,6 +7,8 @@
     prompt_choice: .asciiz "Escolha uma opcao: "
     prompt_int:    .asciiz "\nDigite um numero inteiro (Base 10): "
     msg_not_impl:  .asciiz "\n[!] Funcionalidade em construcao.\n"
+    prompt_float:  .asciiz "\nDigite um numero real (float): "
+    prompt_double: .asciiz "\nDigite um numero real (double): "
     
     str_bin:       .asciiz "\n--- [a] Binario (Base 2) ---\n"
     str_oct:       .asciiz "\n--- [b] Octal (Base 8) ---\n"
@@ -15,6 +17,13 @@
     
     str_signed:    .asciiz "\n--- Complemento a 2 (16 bits) ---\n"
     
+    str_float:     .asciiz "\n--- Analise Float (Simples) ---\n"
+    str_double:    .asciiz "\n--- Analise Double (Dupla) ---\n"
+      
+    msg_sign:      .asciiz "\nSinal: "
+    msg_exp:       .asciiz "\nExpoente (sem vies): "
+    msg_exp_bias:  .asciiz "\nExpoente (com vies): "
+    msg_frac:      .asciiz "\nFracao (Mantissa): "
     msg_hex_prefix:.asciiz "0x"
     msg_space:     .asciiz " "
     msg_step:      .asciiz "\nPasso: "
@@ -121,9 +130,110 @@ case_signed16:
     j main_loop
 
 case_ieee754:
+    # Float 
     li $v0, 4
-    la $a0, msg_not_impl
+    la $a0, str_float
     syscall
+    la $a0, prompt_float
+    syscall
+    
+    li $v0, 6      # Ler float
+    syscall
+    mfc1 $t0, $f0 
+    
+    # Sinal
+    srl $t1, $t0, 31
+    li $v0, 4
+    la $a0, msg_sign
+    syscall
+    li $v0, 1
+    move $a0, $t1
+    syscall
+    
+    #  Expoente
+    sll $t1, $t0, 1
+    srl $t1, $t1, 24
+    move $t2, $t1
+    li $v0, 4
+    la $a0, msg_exp_bias
+    syscall
+    li $v0, 1
+    move $a0, $t2
+    syscall
+    
+    #  Expoente sem vies
+    sub $t3, $t2, 127   
+    li $v0, 4
+    la $a0, msg_exp     
+    syscall
+    li $v0, 1
+    move $a0, $t3       
+    syscall
+    
+    #  Mantissa
+    andi $t4, $t0, 0x007FFFFF
+    li $v0, 4
+    la $a0, msg_frac
+    syscall
+    move $a0, $t4
+    li $a1, 23
+    jal print_binary_n_bits
+    
+    # DOUBLE 
+    li $v0, 4
+    la $a0, str_double
+    syscall
+    la $a0, prompt_double
+    syscall
+    
+    li $v0, 7    # Ler double   
+    syscall
+    mfc1 $t5, $f1   
+    mfc1 $t6, $f0  
+    
+    # Sinal
+    srl $t1, $t5, 31
+    li $v0, 4
+    la $a0, msg_sign
+    syscall
+    li $v0, 1
+    move $a0, $t1
+    syscall
+    
+    # Expoente Com Viés
+    sll $t1, $t5, 1
+    srl $t1, $t1, 21
+    move $t2, $t1
+    li $v0, 4
+    la $a0, msg_exp_bias
+    syscall
+    li $v0, 1
+    move $a0, $t2
+    syscall
+    
+    # Expoente sem Viés
+    sub $t3, $t2, 1023  
+    li $v0, 4
+    la $a0, msg_exp    
+    syscall
+    li $v0, 1
+    move $a0, $t3      
+    syscall
+    
+    # Mantissa
+    li $v0, 4
+    la $a0, msg_frac
+    syscall
+    
+    andi $t4, $t5, 0x000FFFFF
+    move $a0, $t4
+    li $a1, 20
+    jal print_binary_n_bits
+    
+    move $a0, $t6
+    li $a1, 32
+    jal print_binary_n_bits
+
     j main_loop
 
 generic_base_converter:

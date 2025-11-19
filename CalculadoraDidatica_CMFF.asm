@@ -13,6 +13,9 @@
     str_hex:       .asciiz "\n--- [c] Hexadecimal (Base 16) ---\n"
     str_bcd:       .asciiz "\n--- [d] BCD (Binary Coded Decimal) ---\n"
     
+    str_signed:    .asciiz "\n--- Complemento a 2 (16 bits) ---\n"
+    
+    msg_hex_prefix:.asciiz "0x"
     msg_space:     .asciiz " "
     msg_step:      .asciiz "\nPasso: "
     msg_div:       .asciiz "Div: "
@@ -95,8 +98,26 @@ case_conversions:
 
 case_signed16:
     li $v0, 4
-    la $a0, msg_not_impl
+    la $a0, prompt_int
     syscall
+    li $v0, 5
+    syscall
+    move $t0, $v0 
+
+    li $v0, 4
+    la $a0, str_signed
+    syscall
+
+    andi $t1, $t0, 0xFFFF 
+    
+    li $v0, 4
+    la $a0, msg_res_final
+    syscall
+    
+    li $v0, 34      
+    move $a0, $t1
+    syscall
+    
     j main_loop
 
 case_ieee754:

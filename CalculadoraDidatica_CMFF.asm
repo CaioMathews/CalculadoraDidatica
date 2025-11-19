@@ -10,6 +10,8 @@
     
     str_bin:       .asciiz "\n--- [a] Binario (Base 2) ---\n"
     str_oct:       .asciiz "\n--- [b] Octal (Base 8) ---\n"
+    str_hex:       .asciiz "\n--- [c] Hexadecimal (Base 16) ---\n"
+    
     msg_step:      .asciiz "\nPasso: "
     msg_div:       .asciiz "Div: "
     msg_quo:       .asciiz " | Quo: "
@@ -70,6 +72,14 @@ case_conversions:
     syscall
     move $a0, $s0  
     li $a1, 8      
+    jal generic_base_converter
+    
+    # Base 16
+    li $v0, 4
+    la $a0, str_hex
+    syscall
+    move $a0, $s0
+    li $a1, 16     
     jal generic_base_converter
     
     j main_loop
@@ -152,8 +162,18 @@ generic_base_converter:
         lw $a0, 0($sp)
         addi $sp, $sp, 4
         addi $s2, $s2, -1
+               
+        bge $a0, 10, print_hex_char
         
-        li $v0, 1
+        li $v0, 1      
+        syscall
+        j pop_loop
+        
+        print_hex_char:
+        la $t8, hex_digits
+        add $t8, $t8, $a0
+        lb $a0, 0($t8)
+        li $v0, 11     
         syscall
         j pop_loop
 

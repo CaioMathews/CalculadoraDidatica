@@ -1,3 +1,32 @@
+# ==============================================================================
+
+# NOME: Caio Mathews de Farias Ferreira
+# REPOSITÓRIO:  https://github.com/CaioMathews/CalculadoraDidatica.git
+#
+# ARQUIVO:      CalculadoraDidatica_CMFF.asm
+# DATA:         19/11/2025
+#
+# DESCRIÇÃO:
+#   Calculadora Didática implementada em Assembly MIPS para o simulador MARS.
+#   O software apresenta um menu interativo para realizar:
+#   1. Conversão de Base 10 para Binário, Octal, Hexadecimal e BCD.
+#   2. Representação de números com sinal em 16 bits (Complemento a 2).
+#   3. Análise de Ponto Flutuante (IEEE 754) para precisão Simples (Float)
+#      e Dupla (Double), detalhando Sinal, Expoente (com e sem viés) e Mantissa.
+#
+# HISTÓRICO DE REVISÕES / COMMITS:
+# ------------------------------------------------------------------------------
+# DATA       | HORA   | DESCRIÇÃO DA ATUALIZAÇÃO
+# ------------------------------------------------------------------------------
+# 19/11/2025 | 14:45  | V1.1 - Menu e Conversão Base 10 -> Binário (Base 2).
+# 19/11/2025 | 15:00  | V1.2 -  Conversão Base 10 -> Octal (Base 8).
+# 19/11/2025 | 15:15  | V1.3 -  Conversão Base 10 -> Hexadecimal (Base 16).
+# 19/11/2025 | 15:30  | V1.4 -  Conversão Base 10 -> BCD (Binary Coded Decimal).
+# 19/11/2025 | 15:45  | V1.5 -  Complemento a 2 (Signed 16-bit).
+# 19/11/2025 | 16:00  | V1.6 -  Análise IEEE 754 (Float e Double).
+# 19/11/2025 | 16:15  | V1.7 - Adicionado cálculo do expoente sem viés (Unbiased).
+# ==============================================================================
+
 .data
     menu_head:     .asciiz "\n==========================================\n      CALCULADORA DIDATICA MIPS\n==========================================\n"
     menu_opt1:     .asciiz "1. Converter Base 10 (Bin, Oct, Hex, BCD)\n"

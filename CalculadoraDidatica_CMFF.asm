@@ -9,6 +9,7 @@
     msg_not_impl:  .asciiz "\n[!] Funcionalidade em construcao.\n"
     
     str_bin:       .asciiz "\n--- [a] Binario (Base 2) ---\n"
+    str_oct:       .asciiz "\n--- [b] Octal (Base 8) ---\n"
     msg_step:      .asciiz "\nPasso: "
     msg_div:       .asciiz "Div: "
     msg_quo:       .asciiz " | Quo: "
@@ -47,20 +48,30 @@ main:
         j main_loop
 
 case_conversions:
+    # Ler numero
     li $v0, 4
     la $a0, prompt_int
     syscall
     li $v0, 5
     syscall
     move $s0, $v0  
-
+    
+    # Base 2
     li $v0, 4
     la $a0, str_bin
     syscall
     move $a0, $s0  
     li $a1, 2      
     jal generic_base_converter
-
+	
+    # Base 8
+    li $v0, 4
+    la $a0, str_oct
+    syscall
+    move $a0, $s0  
+    li $a1, 8      
+    jal generic_base_converter
+    
     j main_loop
 
 case_signed16:

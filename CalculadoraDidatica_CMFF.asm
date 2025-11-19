@@ -1,0 +1,159 @@
+.data
+    menu_head:     .asciiz "\n==========================================\n      CALCULADORA DIDATICA MIPS\n==========================================\n"
+    menu_opt1:     .asciiz "1. Converter Base 10 (Bin, Oct, Hex, BCD)\n"
+    menu_opt2:     .asciiz "2. Converter Base 10 para 16-bit Signed (Comp. 2)\n"
+    menu_opt3:     .asciiz "3. Analise de Float e Double (IEEE 754)\n"
+    menu_exit:     .asciiz "0. Sair\n"
+    prompt_choice: .asciiz "Escolha uma opcao: "
+    prompt_int:    .asciiz "\nDigite um numero inteiro (Base 10): "
+    msg_not_impl:  .asciiz "\n[!] Funcionalidade em construcao.\n"
+    
+    str_bin:       .asciiz "\n--- [a] Binario (Base 2) ---\n"
+    msg_step:      .asciiz "\nPasso: "
+    msg_div:       .asciiz "Div: "
+    msg_quo:       .asciiz " | Quo: "
+    msg_rem:       .asciiz " | Resto: "
+    msg_res_final: .asciiz "\n>> Resultado Final: "
+    
+    hex_digits:    .byte '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'
+
+.text
+.globl main
+
+main:
+    main_loop:
+        li $v0, 4
+        la $a0, menu_head
+        syscall
+        la $a0, menu_opt1
+        syscall
+        la $a0, menu_opt2
+        syscall
+        la $a0, menu_opt3
+        syscall
+        la $a0, menu_exit
+        syscall
+        la $a0, prompt_choice
+        syscall
+
+        li $v0, 5
+        syscall
+        move $t0, $v0
+
+        beq $t0, 0, exit_program
+        beq $t0, 1, case_conversions
+        beq $t0, 2, case_signed16
+        beq $t0, 3, case_ieee754
+        j main_loop
+
+case_conversions:
+    li $v0, 4
+    la $a0, prompt_int
+    syscall
+    li $v0, 5
+    syscall
+    move $s0, $v0  
+
+    li $v0, 4
+    la $a0, str_bin
+    syscall
+    move $a0, $s0  
+    li $a1, 2      
+    jal generic_base_converter
+
+    j main_loop
+
+case_signed16:
+    li $v0, 4
+    la $a0, msg_not_impl
+    syscall
+    j main_loop
+
+case_ieee754:
+    li $v0, 4
+    la $a0, msg_not_impl
+    syscall
+    j main_loop
+
+generic_base_converter:
+    addi $sp, $sp, -16
+    sw $ra, 0($sp)
+    sw $s0, 4($sp)
+    sw $s1, 8($sp)
+    sw $s2, 12($sp)
+    
+    move $s0, $a0 
+    move $s1, $a1 
+    li $s2, 0     
+    
+    bne $s0, $zero, loop_div
+    li $v0, 1
+    li $a0, 0
+    syscall
+    j end_base_conv
+
+    loop_div:
+        beq $s0, 0, print_result_base
+        
+        div $s0, $s1
+        mflo $t0 
+        mfhi $t1 
+        
+        li $v0, 4
+        la $a0, msg_step
+        syscall
+        li $v0, 1
+        move $a0, $s0 
+        syscall
+        li $v0, 4
+        la $a0, msg_div
+        syscall
+        li $v0, 1
+        move $a0, $s1 
+        syscall
+        li $v0, 4
+        la $a0, msg_quo
+        syscall
+        li $v0, 1
+        move $a0, $t0 
+        syscall
+        li $v0, 4
+        la $a0, msg_rem
+        syscall
+        li $v0, 1
+        move $a0, $t1 
+        syscall
+
+        sub $sp, $sp, 4
+        sw $t1, 0($sp)
+        addi $s2, $s2, 1
+        
+        move $s0, $t0 
+        j loop_div
+
+    print_result_base:
+        li $v0, 4
+        la $a0, msg_res_final
+        syscall
+
+    pop_loop:
+        beq $s2, 0, end_base_conv
+        lw $a0, 0($sp)
+        addi $sp, $sp, 4
+        addi $s2, $s2, -1
+        
+        li $v0, 1
+        syscall
+        j pop_loop
+
+    end_base_conv:
+        lw $ra, 0($sp)
+        lw $s0, 4($sp)
+        lw $s1, 8($sp)
+        lw $s2, 12($sp)
+        addi $sp, $sp, 16
+        jr $ra
+
+exit_program:
+    li $v0, 10
+    syscall
